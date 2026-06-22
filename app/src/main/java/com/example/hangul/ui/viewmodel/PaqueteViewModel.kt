@@ -28,5 +28,34 @@ class PaqueteViewModel(
             }
         }
     }
+
+    fun crearPaquete(
+        destino: String,
+        precio: Double,
+        duracion: String
+    ) {
+        viewModelScope.launch {
+
+            repository.crearPaquete(
+                PaqueteTuristico(
+                    id = "",
+                    destino = destino,
+                    precio = precio,
+                    duracion = duracion
+                )
+            )
+
+            cargarPaquetes()
+        }
+    }
+
+    fun eliminarPaquete(id: String) {
+        viewModelScope.launch {
+
+            repository.eliminarPaquete(id)
+
+            cargarPaquetes()
+        }
+    }
 }
 

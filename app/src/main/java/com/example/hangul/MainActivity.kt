@@ -5,10 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,26 +29,39 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = DinastiaAMVRoute,
+        startDestination = DinastiaAMVRoute
     ) {
+        // Pantalla de Crear Paquete
+        composable<CrearPaqueteRoute> {
+            CrearPaqueteScreen {
+                navController.popBackStack()
+            }
+        }
+
         // Pantalla Principal: Dinastia AMV
         composable<DinastiaAMVRoute> {
             DinastiaAMVScreen(
                 onNavigateToProfile = { navController.navigate(ProfileRoute) },
                 onNavigateToPaquetes = { navController.navigate(PaquetesRoute) },
                 onNavigateToDetail = { id, nombre ->
-                    navController.navigate(DetailRoute(itemId = id, title = nombre))
+                    navController.navigate(
+                        DetailRoute(
+                            itemId = id,
+                            title = nombre
+                        )
+                    )
                 }
             )
-        }
-
-        composable<PaquetesRoute> {
-            PaquetesScreen()
         }
 
         // Pantalla de Perfil
         composable<ProfileRoute> {
             ProfileScreen { navController.popBackStack() }
+        }
+
+        // Pantalla de Paquetes
+        composable<PaquetesRoute> {
+            PaquetesScreen()
         }
 
         // Pantalla de Detalle

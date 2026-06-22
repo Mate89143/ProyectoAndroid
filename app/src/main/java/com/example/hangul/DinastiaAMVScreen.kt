@@ -32,10 +32,19 @@ fun DinastiaAMVScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = onNavigateToPaquetes,
+            onClick = { onNavigateToDetail("1", "Paquetes Turísticos") },
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             Text("Ver Paquetes")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = onNavigateToPaquetes,
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Text("Administrar Paquetes")
         }
 
         Spacer(modifier = Modifier.height(8.dp))

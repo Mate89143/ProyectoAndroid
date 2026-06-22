@@ -11,6 +11,8 @@ data object ProfileRoute
 @Serializable
 data object PaquetesRoute
 
+@Serializable
+data object CrearPaqueteRoute
 
 @Serializable
 data class DetailRoute(

@@ -10,11 +10,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import com.example.hangul.data.api.RetrofitInstance
+import com.example.hangul.data.repository.PaqueteRepository
+import com.example.hangul.ui.viewmodel.PaqueteViewModel
 
 @Composable
 fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
     val scrollState = rememberScrollState()
-    
+
+    val viewModel = remember {
+        PaqueteViewModel(
+            PaqueteRepository(
+                RetrofitInstance.api
+            )
+        )
+    }
+
+    val paquetes by viewModel.paquetes.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarPaquetes()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,17 +76,32 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
         // CONTENIDO SEGÚN LA SECCIÓN SELECCIONADA
         when (itemId) {
             "1" -> {
-                // SECCIÓN: PAQUETES
+
                 ElevatedCard(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        PackageRow("🌴", "Cartagena", "300.000$")
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                        PackageRow("🌊", "Santa Marta", "400.000$")
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                        PackageRow("💃", "Cali", "250.000$")
+
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+
+                        paquetes.forEachIndexed { index, paquete ->
+
+                            PackageRow(
+                                emoji = "🌴",
+                                name = paquete.destino,
+                                price = "$${paquete.precio}"
+                            )
+
+                            if (index < paquetes.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = 12.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -130,7 +165,7 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
         ) {
             Text("Volver al Inicio")
         }
-        
+
         Spacer(modifier = Modifier.height(20.dp))
     }
 }
