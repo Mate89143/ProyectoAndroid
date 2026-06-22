@@ -11,8 +11,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import com.example.hangul.data.api.RetrofitInstance
 import com.example.hangul.data.repository.PaqueteRepository
 import com.example.hangul.ui.viewmodel.PaqueteViewModel
@@ -90,10 +88,17 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
 
                         paquetes.forEachIndexed { index, paquete ->
 
-                            PackageRow(
-                                emoji = "🌴",
+                            DetailPackageRow(
+                                emoji = when {
+                                    paquete.destino.contains("Cartagena", ignoreCase = true) -> "🏖️"
+                                    paquete.destino.contains("Medellin", ignoreCase = true) -> "🌺"
+                                    paquete.destino.contains("Bogotá", ignoreCase = true) -> "🏙️"
+                                    paquete.destino.contains("Eje Cafetero", ignoreCase = true) -> "☕"
+                                    else -> "🌴"
+                                },
                                 name = paquete.destino,
-                                price = "$${paquete.precio}"
+                                price = "$${paquete.precio}",
+                                duration = paquete.duracion
                             )
 
                             if (index < paquetes.lastIndex) {
@@ -171,13 +176,14 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
 }
 
 @Composable
-fun PackageRow(emoji: String, name: String, price: String) {
+fun DetailPackageRow(emoji: String, name: String, price: String, duration: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(emoji, style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(name, fontWeight = FontWeight.Bold)
             Text("Valor: $price", style = MaterialTheme.typography.bodyMedium)
+            Text(duration, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
         }
     }
 }

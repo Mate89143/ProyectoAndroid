@@ -64,6 +64,9 @@ fun AppNavigation() {
             PaquetesScreen(
                 onCrearPaquete = {
                     navController.navigate(CrearPaqueteRoute)
+                },
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
