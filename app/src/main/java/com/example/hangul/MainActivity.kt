@@ -61,7 +61,11 @@ fun AppNavigation() {
 
         // Pantalla de Paquetes
         composable<PaquetesRoute> {
-            PaquetesScreen()
+            PaquetesScreen(
+                onCrearPaquete = {
+                    navController.navigate(CrearPaqueteRoute)
+                }
+            )
         }
 
         // Pantalla de Detalle
