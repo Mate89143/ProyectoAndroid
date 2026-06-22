@@ -9,7 +9,12 @@ data object DinastiaAMVRoute
 data object ProfileRoute
 
 @Serializable
+data object PaquetesRoute
+
+
+@Serializable
 data class DetailRoute(
     val itemId: String,
     val title: String = "Sin Título",
 )
+

@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 fun DinastiaAMVScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToDetail: (String, String) -> Unit,
+    onNavigateToPaquetes: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -31,7 +32,7 @@ fun DinastiaAMVScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { onNavigateToDetail("1", "Paquetes Turísticos") },
+            onClick = onNavigateToPaquetes,
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
             Text("Ver Paquetes")

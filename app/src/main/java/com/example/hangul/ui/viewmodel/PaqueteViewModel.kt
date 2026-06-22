@@ -20,8 +20,13 @@ class PaqueteViewModel(
 
     fun cargarPaquetes() {
         viewModelScope.launch {
-            _paquetes.value =
-                repository.obtenerPaquetes()
+            try {
+                _paquetes.value =
+                    repository.obtenerPaquetes()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
+

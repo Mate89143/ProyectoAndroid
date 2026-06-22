@@ -39,10 +39,15 @@ fun AppNavigation() {
         composable<DinastiaAMVRoute> {
             DinastiaAMVScreen(
                 onNavigateToProfile = { navController.navigate(ProfileRoute) },
+                onNavigateToPaquetes = { navController.navigate(PaquetesRoute) },
                 onNavigateToDetail = { id, nombre ->
                     navController.navigate(DetailRoute(itemId = id, title = nombre))
                 }
             )
+        }
+
+        composable<PaquetesRoute> {
+            PaquetesScreen()
         }
 
         // Pantalla de Perfil
