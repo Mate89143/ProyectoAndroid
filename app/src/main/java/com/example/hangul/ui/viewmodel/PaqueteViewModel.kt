@@ -12,11 +12,21 @@ class PaqueteViewModel(
     private val repository: PaqueteRepository
 ) : ViewModel() {
 
+    // Estado compartido para el paquete reservado (Simulado como estático para persistencia entre pantallas)
+    companion object {
+        private val _paqueteReservado = MutableStateFlow<PaqueteTuristico?>(null)
+        val paqueteReservado: StateFlow<PaqueteTuristico?> = _paqueteReservado
+    }
+
     private val _paquetes =
         MutableStateFlow<List<PaqueteTuristico>>(emptyList())
 
     val paquetes: StateFlow<List<PaqueteTuristico>>
         get() = _paquetes
+
+    fun reservarPaquete(paquete: PaqueteTuristico) {
+        _paqueteReservado.value = paquete
+    }
 
     fun cargarPaquetes() {
         viewModelScope.launch {

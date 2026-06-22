@@ -17,7 +17,12 @@ import com.example.hangul.ui.viewmodel.PaqueteViewModel
 
 @Composable
 fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
+    var currentItemId by remember { mutableStateOf(itemId) }
+    var currentTitle by remember { mutableStateOf(title) }
+    
     val scrollState = rememberScrollState()
+    var comentario by remember { mutableStateOf("") }
+    var enviado by remember { mutableStateOf(false) }
 
     val viewModel = remember {
         PaqueteViewModel(
@@ -28,6 +33,7 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
     }
 
     val paquetes by viewModel.paquetes.collectAsState()
+    val paqueteReservado by PaqueteViewModel.paqueteReservado.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.cargarPaquetes()
@@ -45,7 +51,7 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
 
         // Título dinámico
         Text(
-            text = title,
+            text = currentTitle,
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.ExtraBold,
@@ -53,7 +59,7 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
         )
 
         // Descripción dinámica según el ID
-        val description = when (itemId) {
+        val description = when (currentItemId) {
             "1" -> "Nuestros Paquetes Disponibles"
             "2" -> "Detalles de tu Reserva Actual"
             "3" -> "Los destinos más populares de Colombia"
@@ -72,7 +78,7 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // CONTENIDO SEGÚN LA SECCIÓN SELECCIONADA
-        when (itemId) {
+        when (currentItemId) {
             "1" -> {
 
                 ElevatedCard(
@@ -98,7 +104,12 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
                                 },
                                 name = paquete.destino,
                                 price = "$${paquete.precio}",
-                                duration = paquete.duracion
+                                duration = paquete.duracion,
+                                onReserve = {
+                                    viewModel.reservarPaquete(paquete)
+                                    currentItemId = "2"
+                                    currentTitle = "Plan Reservado"
+                                }
                             )
 
                             if (index < paquetes.lastIndex) {
@@ -112,19 +123,48 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
             }
             "2" -> {
                 // SECCIÓN: PLAN RESERVADO
-                ElevatedCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text("✅ Plan: Cartagena Mágico", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Incluye tiquetes aéreos, hotel frente al mar y tours guiados. Tu descanso soñado en el Caribe.",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("Total: 300.000$", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                if (paqueteReservado != null) {
+                    ElevatedCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp)) {
+                            Text(
+                                "✅ Plan: ${paqueteReservado?.destino}",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Tu aventura de ${paqueteReservado?.duracion} está lista. ¡Prepárate para viajar!",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                "Total: $${paqueteReservado?.precio}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+                } else {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("📍 Aún no tienes reservas", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "Explora nuestros paquetes y elige tu próximo destino.",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
             }
@@ -136,6 +176,72 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
                     DestinationCard("🏔️", "Santa Marta", "La ciudad más antigua, con la Sierra Nevada y el Parque Tayrona.")
                     DestinationCard("☕", "Manizales", "La ciudad de las puertas abiertas, famosa por su café y paisajes de montaña.")
                     DestinationCard("🌉", "Pereira", "La querendona, trasnochadora y morena, epicentro del Eje Cafetero.")
+                }
+            }
+            "4" -> {
+                // SECCIÓN: ASESORÍA
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "💬 Déjanos tu consulta",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        if (!enviado) {
+                            OutlinedTextField(
+                                value = comentario,
+                                onValueChange = { comentario = it },
+                                label = { Text("Escribe tu comentario aquí...") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(150.dp),
+                                shape = MaterialTheme.shapes.medium,
+                                placeholder = { Text("¿Cómo podemos ayudarte hoy?") }
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { 
+                                    if (comentario.isNotBlank()) {
+                                        enviado = true 
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Text("Enviar Mensaje 🚀")
+                            }
+                        } else {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    "¡Mensaje enviado con éxito!",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    "Un asesor se pondrá en contacto contigo pronto. 😊",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                TextButton(onClick = { 
+                                    enviado = false
+                                    comentario = ""
+                                }) {
+                                    Text("Escribir otro mensaje")
+                                }
+                            }
+                        }
+                    }
                 }
             }
             else -> {
@@ -153,15 +259,17 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Botón de acción común
-        Button(
-            onClick = { /* Acción visual */ },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (itemId == "2") "Ver Itinerario" else "Más Información")
-        }
+        // Botón de acción común (No se muestra en Asesoría ni en Plan Reservado)
+        if (currentItemId != "4" && currentItemId != "2") {
+            Button(
+                onClick = { /* Acción visual */ },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Más Información")
+            }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         // Botón para volver
         OutlinedButton(
@@ -176,14 +284,30 @@ fun DetailScreen(itemId: String, title: String, onBack: () -> Unit) {
 }
 
 @Composable
-fun DetailPackageRow(emoji: String, name: String, price: String, duration: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+fun DetailPackageRow(
+    emoji: String,
+    name: String,
+    price: String,
+    duration: String,
+    onReserve: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Text(emoji, style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.width(12.dp))
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(name, fontWeight = FontWeight.Bold)
             Text("Valor: $price", style = MaterialTheme.typography.bodyMedium)
             Text(duration, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+        }
+        Button(
+            onClick = onReserve,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+            shape = MaterialTheme.shapes.small
+        ) {
+            Text("Reservar", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
